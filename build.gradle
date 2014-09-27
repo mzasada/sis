@@ -1,19 +1,43 @@
+buildscript {
+  ext {
+    springBootVersion = '1.1.7.RELEASE'
+  }
+  repositories {
+    mavenCentral()
+  }
+  dependencies {
+    classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+  }
+}
+
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'spring-boot'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
-version = '1.0'
+jar {
+  baseName = 'shell'
+  version = '0.0.1-SNAPSHOT'
+}
 
 repositories {
   mavenCentral()
 }
 
 dependencies {
+  // Spring
+  compile "org.springframework.boot:spring-boot-starter"
+
   // CLI
   compile 'jline:jline:2.12'
 
   // Tests
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
   testCompile 'org.mockito:mockito-all:1.9.5'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.0'
 }
