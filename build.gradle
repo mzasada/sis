@@ -1,0 +1,19 @@
+apply plugin: 'java'
+apply plugin: 'groovy'
+
+sourceCompatibility = 1.8
+
+version = '1.0'
+
+repositories {
+  mavenCentral()
+}
+
+dependencies {
+  // CLI
+  compile 'jline:jline:2.12'
+
+  // Tests
+  testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
+  testCompile 'org.mockito:mockito-all:1.9.5'
+}
