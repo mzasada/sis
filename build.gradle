@@ -33,6 +33,9 @@ dependencies {
   // CLI
   compile 'jline:jline:2.12'
 
+  // JS
+  compile 'com.googlecode.json-simple:json-simple:1.1.1'
+
   // Tests
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
   testCompile 'org.mockito:mockito-all:1.9.5'

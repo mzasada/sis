@@ -1,33 +1,17 @@
-import jline.TerminalFactory;
-import jline.console.ConsoleReader;
-import jline.console.history.MemoryHistory;
-import jline.internal.Configuration;
+import org.sis.repl.ReplConfiguration;
+import org.sis.repl.ReplRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
 
-import java.io.IOException;
-import java.io.PrintWriter;
-
+@Configuration
+@ComponentScan(basePackageClasses = ReplConfiguration.class)
 public class Bootstrap {
 
   public static void main(String[] args) {
-    try {
-      TerminalFactory.configure(TerminalFactory.AUTO);
-      TerminalFactory.reset();
-      Configuration.reset();
-
-      ConsoleReader reader = new ConsoleReader();
-      reader.setPrompt("> ");
-      reader.setHistory(new MemoryHistory());
-
-      PrintWriter out = new PrintWriter(reader.getOutput());
-
-      String input;
-      while ((input = reader.readLine()) != null) {
-        out.println("input = " + input);
-        out.flush();
-      }
-
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
+    ApplicationContext ctx = SpringApplication.run(Bootstrap.class, args);
+    ReplRunner replRunner = ctx.getBean(ReplRunner.class);
+    replRunner.startLoop();
   }
 }
