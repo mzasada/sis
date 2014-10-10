@@ -1,8 +1,6 @@
 import com.google.common.collect.ImmutableSet;
 import com.google.common.eventbus.EventBus;
-import org.sis.ipc.IpcConfiguration;
 import org.sis.ipc.events.ClusterStatusUpdateEvent;
-import org.sis.repl.ReplConfiguration;
 import org.sis.repl.ReplRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
@@ -10,9 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-@ComponentScan(basePackageClasses = {
-    ReplConfiguration.class,
-    IpcConfiguration.class})
+@ComponentScan(basePackages = "org.sis")
 public class Bootstrap {
 
   public static void main(String[] args) {

@@ -32,6 +32,6 @@ public class CollectionRegistry {
   private void updateCollection(Set<String> collectionNames) {
     collections.clear();
     collectionNames.forEach(
-        name -> collections.putIfAbsent(name, new CollectionOperations(name)));
+        name -> collections.put(name, new CollectionOperations(name)));
   }
 }
