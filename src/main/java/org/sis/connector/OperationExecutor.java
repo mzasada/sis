@@ -3,9 +3,9 @@ package org.sis.connector;
 import org.json.simple.JSONObject;
 import org.sis.repl.bindings.operations.CreateCollectionOperation;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public interface OperationExecutor {
 
-  Future<JSONObject> submit(CreateCollectionOperation operation);
+  CompletableFuture<JSONObject> submit(CreateCollectionOperation operation);
 }

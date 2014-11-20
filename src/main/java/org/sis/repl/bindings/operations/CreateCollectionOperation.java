@@ -3,7 +3,7 @@ package org.sis.repl.bindings.operations;
 import org.json.simple.JSONObject;
 import org.sis.connector.OperationExecutor;
 
-import java.util.concurrent.Future;
+import java.util.concurrent.CompletableFuture;
 
 public class CreateCollectionOperation implements Operation {
 
@@ -38,7 +38,7 @@ public class CreateCollectionOperation implements Operation {
   }
 
   @Override
-  public Future<JSONObject> execute(OperationExecutor executor) {
+  public CompletableFuture<JSONObject> execute(OperationExecutor executor) {
     return executor.submit(this);
   }
 }

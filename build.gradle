@@ -28,8 +28,8 @@ repositories {
 
 dependencies {
   // Spring
-  compile "org.springframework.boot:spring-boot-starter"
-  compile "org.springframework.boot:spring-boot-starter-web"
+  compile 'org.springframework.boot:spring-boot-starter'
+  compile 'org.springframework:spring-web:4.1.2.RELEASE'
 
   // CLI
   compile 'jline:jline:2.12'
