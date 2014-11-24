@@ -33,9 +33,8 @@ dependencies {
 
   // CLI
   compile 'jline:jline:2.12'
-
-  // JS
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
+  compile 'com.google.code.gson:gson:2.3'
 
   // FP
   compile 'com.google.guava:guava:18.0'
