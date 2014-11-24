@@ -1,7 +1,8 @@
 package org.sis.repl.bindings;
 
 import org.json.simple.JSONObject;
-import org.sis.repl.bindings.operations.CreateCollectionOperation;
+import org.sis.repl.bindings.operations.CreateCollection;
+import org.sis.repl.bindings.operations.DeleteCollection;
 
 import java.util.Map;
 
@@ -13,8 +14,12 @@ public class CollectionOperations {
     this.collectionName = collectionName;
   }
 
-  public CreateCollectionOperation create() {
-    return new CreateCollectionOperation(collectionName);
+  public CreateCollection create() {
+    return new CreateCollection(collectionName);
+  }
+
+  public DeleteCollection delete() {
+    return new DeleteCollection(collectionName);
   }
 
   public JSONObject find(Map<String, Object> input) {

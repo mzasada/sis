@@ -5,22 +5,24 @@ import org.sis.connector.OperationExecutor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CreateCollectionOperation implements Operation {
+public class CreateCollection implements Operation {
+
+  private static final long MIN_SHARD_COUNT = 1L;
 
   private final String collectionName;
   private long replicas;
-  private long shards;
+  private long shards = MIN_SHARD_COUNT;
 
-  public CreateCollectionOperation(String collectionName) {
+  public CreateCollection(String collectionName) {
     this.collectionName = collectionName;
   }
 
-  public CreateCollectionOperation replicas(long count) {
+  public CreateCollection replicas(long count) {
     replicas = count;
     return this;
   }
 
-  public CreateCollectionOperation shards(long count) {
+  public CreateCollection shards(long count) {
     shards = count;
     return this;
   }
