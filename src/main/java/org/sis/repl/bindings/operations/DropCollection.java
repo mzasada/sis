@@ -5,11 +5,11 @@ import org.sis.connector.OperationExecutor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class DeleteCollection implements Operation {
+public class DropCollection implements Operation {
 
   private final String collectionName;
 
-  public DeleteCollection(String collectionName) {
+  public DropCollection(String collectionName) {
     this.collectionName = collectionName;
   }
 

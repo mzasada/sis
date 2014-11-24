@@ -3,7 +3,7 @@ package org.sis.connector.solr.api;
 import org.json.simple.JSONObject;
 import org.sis.connector.solr.cluster.ClusterState;
 import org.sis.repl.bindings.operations.CreateCollection;
-import org.sis.repl.bindings.operations.DeleteCollection;
+import org.sis.repl.bindings.operations.DropCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -50,7 +50,7 @@ public class SolrCollectionServiceImpl implements SolrCollectionService {
   }
 
   @Override
-  public CompletableFuture<JSONObject> delete(DeleteCollection operation) {
+  public CompletableFuture<JSONObject> drop(DropCollection operation) {
     UriComponents uriComponents = UriComponentsBuilder
         .fromHttpUrl(getCollectionsApiEndpoint())
         .queryParam("action", "DELETE")
