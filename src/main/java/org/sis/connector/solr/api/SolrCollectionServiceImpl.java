@@ -82,6 +82,6 @@ public class SolrCollectionServiceImpl implements SolrCollectionService {
   }
 
   private String getCollectionsApiEndpoint() {
-    return clusterState.getAvailableNode().getHost() + COLLECTIONS_API_ENDPOINT;
+    return clusterState.findAnyAvailableNode().getHost() + COLLECTIONS_API_ENDPOINT;
   }
 }

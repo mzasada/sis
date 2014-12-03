@@ -1,6 +1,8 @@
 package org.sis.repl;
 
+import com.google.common.eventbus.EventBus;
 import jline.console.ConsoleReader;
+import org.sis.ipc.events.RefreshClusterStatusEvent;
 import org.sis.repl.eval.Interpreter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,15 +20,18 @@ public class ReplRunner {
   private final ConsoleReader in;
   private final PrintWriter out;
   private final Interpreter interpreter;
+  private final EventBus eventBus;
 
   @Autowired
-  public ReplRunner(ConsoleReader in, Interpreter interpreter) {
+  public ReplRunner(ConsoleReader in, Interpreter interpreter, EventBus eventBus) {
     this.in = in;
+    this.eventBus = eventBus;
     this.out = new PrintWriter(in.getOutput());
     this.interpreter = interpreter;
   }
 
   public void startLoop() {
+    eventBus.post(new RefreshClusterStatusEvent());
     try {
       String input;
       while ((input = in.readLine()) != null) {

@@ -33,15 +33,22 @@ dependencies {
 
   // CLI
   compile 'jline:jline:2.12'
+
+  // JSON
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
   compile 'com.google.code.gson:gson:2.3'
+  compile 'com.jayway.jsonpath:json-path:1.2.0'
+
+  // ZooKeeper
+  compile 'org.apache.curator:curator-framework:2.7.0'
+  compile 'org.apache.curator:curator-recipes:2.7.0'
 
   // FP
   compile 'com.google.guava:guava:18.0'
 
   // Tests
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
-  testCompile 'org.mockito:mockito-all:1.9.5'
+  testCompile 'org.codehaus.groovy:groovy-all:2.3.7'
 }
 
 task wrapper(type: Wrapper) {

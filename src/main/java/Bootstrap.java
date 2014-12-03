@@ -1,6 +1,3 @@
-import com.google.common.collect.ImmutableSet;
-import com.google.common.eventbus.EventBus;
-import org.sis.ipc.events.ClusterStatusUpdateEvent;
 import org.sis.repl.ReplRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,9 +12,6 @@ public class Bootstrap {
 
   public static void main(String[] args) {
     ApplicationContext ctx = SpringApplication.run(Bootstrap.class, args);
-    ReplRunner replRunner = ctx.getBean(ReplRunner.class);
-    EventBus eventBus = ctx.getBean(EventBus.class);
-    eventBus.post(new ClusterStatusUpdateEvent(ImmutableSet.of("books", "bikes", "shoes")));
-    replRunner.startLoop();
+    ctx.getBean(ReplRunner.class).startLoop();
   }
 }

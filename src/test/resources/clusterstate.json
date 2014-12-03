@@ -1,0 +1,36 @@
+{
+  "collection1": {
+    "shards": {
+      "shard1": {
+        "range": "80000000-ffffffff",
+        "state": "active",
+        "replicas": {
+          "core_node1": {
+            "state": "active",
+            "base_url": "http://127.0.1.1:8001/solr",
+            "core": "collection1",
+            "node_name": "127.0.1.1:8001_solr",
+            "leader": "true"
+          }
+        }
+      },
+      "shard2": {
+        "range": "0-7fffffff",
+        "state": "active",
+        "replicas": {
+          "core_node2": {
+            "state": "active",
+            "base_url": "http://127.0.1.1:8002/solr",
+            "core": "collection1",
+            "node_name": "127.0.1.1:8002_solr",
+            "leader": "true"
+          }
+        }
+      }
+    },
+    "maxShardsPerNode": "1",
+    "router": {"name": "compositeId"},
+    "replicationFactor": "1",
+    "autoCreated": "true"
+  }
+}
