@@ -1,22 +1,27 @@
 package org.sis.ipc.events;
 
 import com.google.common.collect.Multimap;
+import org.sis.connector.solr.cluster.CollectionConfig;
 import org.sis.connector.solr.cluster.SolrNode;
 
 import java.util.Set;
 
-public class ClusterStatusUpdateEvent {
-  private final Multimap<String, SolrNode> clusterState;
+import static java.util.stream.Collectors.toSet;
 
-  public ClusterStatusUpdateEvent(Multimap<String, SolrNode> clusterState) {
+public class ClusterStatusUpdateEvent {
+  private final Multimap<CollectionConfig, SolrNode> clusterState;
+
+  public ClusterStatusUpdateEvent(Multimap<CollectionConfig, SolrNode> clusterState) {
     this.clusterState = clusterState;
   }
 
   public Set<String> getCollectionNames() {
-    return clusterState.keySet();
+    return clusterState.keySet().stream()
+        .map(CollectionConfig::getCollectionName)
+        .collect(toSet());
   }
 
-  public Multimap<String, SolrNode> getClusterState() {
+  public Multimap<CollectionConfig, SolrNode> getClusterState() {
     return clusterState;
   }
 }
