@@ -27,9 +27,12 @@ repositories {
 }
 
 dependencies {
-  // Spring
+  // DI
   compile 'org.springframework.boot:spring-boot-starter'
+
+  // HTTP NIO
   compile 'org.springframework:spring-web:4.1.2.RELEASE'
+  compile 'org.apache.httpcomponents:httpasyncclient:4.0.2'
 
   // CLI
   compile 'jline:jline:2.12'
@@ -39,7 +42,7 @@ dependencies {
   compile 'com.google.code.gson:gson:2.3'
   compile 'com.jayway.jsonpath:json-path:1.2.0'
 
-  // ZooKeeper
+  // ZooKeeper integration
   compile 'org.apache.curator:curator-framework:2.7.0'
   compile 'org.apache.curator:curator-recipes:2.7.0'
 
