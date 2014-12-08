@@ -8,6 +8,13 @@ import static java.lang.Integer.compare;
 import static org.jsoup.Jsoup.parse;
 import static org.jsoup.parser.Parser.xmlParser;
 
+/**
+ * Reads request handlers information from the {@code solrconfig.xml} file.
+ *
+ * @see HandlersInfo
+ * @see <a href="http://wiki.apache.org/solr/SolrConfigXml">solrconfig.xml</a> at Apache Solr wiki
+ * @since 1.0
+ */
 public class SolrConfigXmlReader {
 
   public HandlersInfo read(String solrConfigXml) {
