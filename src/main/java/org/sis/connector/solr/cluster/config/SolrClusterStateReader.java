@@ -1,9 +1,10 @@
-package org.sis.connector.solr.cluster;
+package org.sis.connector.solr.cluster.config;
 
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.JsonPath;
+import org.sis.connector.solr.cluster.SolrNode;
 
 import java.util.Collection;
 import java.util.List;

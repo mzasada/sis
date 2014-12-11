@@ -1,5 +1,6 @@
-package org.sis.connector.solr.cluster
+package org.sis.connector.solr.cluster.config
 
+import org.sis.connector.solr.cluster.config.SolrClusterStateReader
 import spock.lang.Specification
 
 class SolrClusterStateReaderTest extends Specification {

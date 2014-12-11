@@ -5,6 +5,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
 import org.sis.connector.solr.api.SolrFileService;
+import org.sis.connector.solr.cluster.config.InvalidConfigurationException;
+import org.sis.connector.solr.cluster.config.SolrClusterStateReader;
 import org.sis.connector.solr.cluster.config.SolrConfigXmlReader;
 import org.sis.ipc.events.ClusterStatusUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +41,7 @@ public class SolrClusterStateUpdater {
   }
 
   public void updateSolrClusterStateAsync(String clusterStateJson) {
-    executorService.submit(() -> {
+//    executorService.submit(() -> {
       Multimap<CollectionConfig, SolrNode> clusterTopology = HashMultimap.create();
       Multimap<String, SolrNode> clusterState = solrClusterStateReader.readClusterState(clusterStateJson);
       List<CompletableFuture<?>> pendingFutures = Lists.newArrayList();
@@ -55,7 +57,7 @@ public class SolrClusterStateUpdater {
       CompletableFuture.allOf(pendingFutures.toArray(new CompletableFuture[pendingFutures.size()])).join();
 
       eventBus.post(new ClusterStatusUpdateEvent(clusterTopology));
-    });
+//    });
   }
 
   @PreDestroy
@@ -67,6 +69,6 @@ public class SolrClusterStateUpdater {
   private CompletableFuture<String> loadCollectionConfig(String collectionName, Collection<SolrNode> nodes) {
     return findLeaderNode(nodes)
         .map(node -> solrFileService.fetchSolrConfigXml(node, collectionName))
-        .orElseThrow(() -> new IllegalStateException(""));
+        .orElseThrow(() -> new InvalidConfigurationException(""));
   }
 }

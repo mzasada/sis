@@ -29,7 +29,7 @@ public class SolrConfigXmlReader {
         .sorted((e1, e2) -> compare(countConfigElements(e1), countConfigElements(e2)))
         .map(e -> e.attr("name"))
         .findFirst()
-        .orElseThrow(() -> new IllegalStateException(""));
+        .orElseThrow(() -> new InvalidConfigurationException("Could not find any search handler."));
   }
 
   private Elements findEagerRequestHandlers(Document document) {
