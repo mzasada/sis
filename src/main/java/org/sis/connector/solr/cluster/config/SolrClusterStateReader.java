@@ -12,8 +12,17 @@ import java.util.Map;
 
 import static java.util.stream.Collectors.toList;
 
+/**
+ * Reads {@code /clusterstate.json} file from a ZooKeeper ensemble, which represents current state of a Solr cluster.
+ *
+ * @since 1.0
+ */
 public class SolrClusterStateReader {
 
+  /**
+   * @param json {@code /clusterstate.json} file content from a ZooKeeper ensable.
+   * @return multimap of collection name and Solr nodes across which it is distributed
+   */
   public Multimap<String, SolrNode> readClusterState(String json) {
     Multimap<String, SolrNode> cluster = HashMultimap.create();
     Object document = Configuration.defaultConfiguration().jsonProvider().parse(json);
