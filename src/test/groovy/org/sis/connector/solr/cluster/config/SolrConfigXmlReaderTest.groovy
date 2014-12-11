@@ -26,6 +26,7 @@ class SolrConfigXmlReaderTest extends Specification {
               <str name="wt">json</str>
           </lst>
         </requestHandler>
+        <requestHandler name="/update" class="solr.UpdateRequestHandler" />
       </config>
         """
 
@@ -34,15 +35,33 @@ class SolrConfigXmlReaderTest extends Specification {
 
     then:
     handlers.searchHandler == "/simple"
-
   }
 
-  def 'should pick only search handlers when looking for a search handler'() {
+  def 'should require at least one search handler to be present'() {
     given:
     def config =
         """
       <?xml version="1.0" encoding="UTF-8" ?>
       <config>
+        <requestHandler name="/get" class="solr.RealTimeGetHandler" />
+        <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+      </config>
+        """
+
+    when:
+    solrConfigXmlReader.read(config)
+
+    then:
+    thrown(InvalidConfigurationException)
+  }
+
+  def 'should require at least one update handler to be present'() {
+    given:
+    def config =
+        """
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <config>
+        <requestHandler name="/query" class="solr.SearchHandler" />
         <requestHandler name="/get" class="solr.RealTimeGetHandler" />
       </config>
         """
@@ -54,7 +73,28 @@ class SolrConfigXmlReaderTest extends Specification {
     thrown(InvalidConfigurationException)
   }
 
-  def 'should read search chandler from out-of-the-box solrconfig.xml file'() {
+
+  def 'should read update handler from simplified config'() {
+    given:
+    def config =
+        """
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <config>
+        <requestHandler name="/query" class="solr.SearchHandler" />
+        <requestHandler name="/get" class="solr.RealTimeGetHandler" />
+        <requestHandler name="/put" class="solr.UpdateRequestHandler" />
+      </config>
+        """
+
+    when:
+    def handlers = solrConfigXmlReader.read(config)
+
+    then:
+    handlers.updateHandler == "/put"
+  }
+
+
+  def 'should read all handlers from out-of-the-box solrconfig.xml file'() {
     given:
     def solrConfig = getClass().getResource("/solrconfig.xml").text
 
@@ -63,5 +103,6 @@ class SolrConfigXmlReaderTest extends Specification {
 
     then:
     handlers.searchHandler == "/select"
+    handlers.updateHandler == "/update"
   }
 }

@@ -18,13 +18,22 @@ import static org.jsoup.parser.Parser.xmlParser;
 public class SolrConfigXmlReader {
 
   public HandlersInfo read(String solrConfigXml) {
-    String searchHandler = findLeastConfiguredSearchHandler(solrConfigXml);
-
-    return new HandlersInfo(searchHandler);
+    Document document = parse(solrConfigXml, "", xmlParser());
+    String searchHandler = findLeastConfiguredSearchHandler(document);
+    String updateHandler = findUpdateHandler(document);
+    return new HandlersInfo(searchHandler, updateHandler);
   }
 
-  private String findLeastConfiguredSearchHandler(String solrConfigXml) {
-    return findEagerRequestHandlers(parse(solrConfigXml, "", xmlParser()))
+  private String findUpdateHandler(Document document) {
+    return findEagerRequestHandlers(document, "solr.UpdateRequestHandler")
+        .stream()
+        .map(e -> e.attr("name"))
+        .findFirst()
+        .orElseThrow(() -> new InvalidConfigurationException("Could not find any update handler."));
+  }
+
+  private String findLeastConfiguredSearchHandler(Document document) {
+    return findEagerRequestHandlers(document, "solr.SearchHandler")
         .stream()
         .sorted((e1, e2) -> compare(countConfigElements(e1), countConfigElements(e2)))
         .map(e -> e.attr("name"))
@@ -32,9 +41,9 @@ public class SolrConfigXmlReader {
         .orElseThrow(() -> new InvalidConfigurationException("Could not find any search handler."));
   }
 
-  private Elements findEagerRequestHandlers(Document document) {
+  private Elements findEagerRequestHandlers(Document document, String handlerClass) {
     return document
-        .select("requestHandler[class=solr.SearchHandler]")
+        .select(String.format("requestHandler[class=%s]", handlerClass))
         .not("requestHandler[startup=lazy]");
   }
 
