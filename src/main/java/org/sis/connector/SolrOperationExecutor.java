@@ -4,6 +4,7 @@ import org.json.simple.JSONObject;
 import org.sis.connector.solr.api.SolrCollectionService;
 import org.sis.repl.bindings.operations.CreateCollection;
 import org.sis.repl.bindings.operations.DropCollection;
+import org.sis.repl.bindings.operations.SaveDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -27,5 +28,10 @@ public class SolrOperationExecutor implements OperationExecutor {
   @Override
   public CompletableFuture<JSONObject> submit(DropCollection operation) {
     return solrCollectionService.drop(operation);
+  }
+
+  @Override
+  public CompletableFuture<JSONObject> submit(SaveDocument operation) {
+    return null;
   }
 }

@@ -17,7 +17,7 @@ public class CollectionRegistry {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(CollectionRegistry.class);
 
-  private final Map<String, CollectionOperations> collections = new TreeMap<>();
+  private final Map<String, OperationsFacade> collections = new TreeMap<>();
 
   @Autowired
   public CollectionRegistry(EventBus eventBus) {
@@ -29,13 +29,13 @@ public class CollectionRegistry {
     updateCollection(event.getCollectionNames());
   }
 
-  public Map<String, CollectionOperations> getCurrentCollectionsView() {
+  public Map<String, OperationsFacade> getCurrentCollectionsView() {
     return collections;
   }
 
   private void updateCollection(Set<String> collectionNames) {
     collections.clear();
     collectionNames.forEach(
-        name -> collections.put(name, new CollectionOperations(name)));
+        name -> collections.put(name, new OperationsFacade(name)));
   }
 }

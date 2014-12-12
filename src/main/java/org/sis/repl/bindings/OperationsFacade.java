@@ -3,14 +3,15 @@ package org.sis.repl.bindings;
 import org.json.simple.JSONObject;
 import org.sis.repl.bindings.operations.CreateCollection;
 import org.sis.repl.bindings.operations.DropCollection;
+import org.sis.repl.bindings.operations.SaveDocument;
 
 import java.util.Map;
 
-public class CollectionOperations {
+public class OperationsFacade {
 
   private final String collectionName;
 
-  public CollectionOperations(String collectionName) {
+  public OperationsFacade(String collectionName) {
     this.collectionName = collectionName;
   }
 
@@ -20,6 +21,10 @@ public class CollectionOperations {
 
   public DropCollection delete() {
     return new DropCollection(collectionName);
+  }
+
+  public SaveDocument save(Map<String, Object> document) {
+    return new SaveDocument(collectionName, new JSONObject(document));
   }
 
   public JSONObject find(Map<String, Object> input) {
