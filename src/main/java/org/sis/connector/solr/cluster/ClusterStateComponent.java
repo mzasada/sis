@@ -8,10 +8,18 @@ import org.sis.ipc.events.ClusterStatusUpdateEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
+/**
+ * In-memory representation of Solr cluster state. It contains information about all available collections,
+ * cores and search handlers.
+ *
+ * @since 1.0
+ */
 @Component
 public class ClusterStateComponent implements ClusterState {
 
-  private final Multimap<String, SolrNode> collectionToNodeMapping = HashMultimap.create();
+  private final Multimap<CollectionConfig, SolrNode> collectionToNodeMapping = HashMultimap.create();
 
   @Autowired
   public ClusterStateComponent(EventBus eventBus) {
@@ -25,7 +33,7 @@ public class ClusterStateComponent implements ClusterState {
   }
 
   @Override
-  public SolrNode findAnyAvailableNode() {
-    return collectionToNodeMapping.values().stream().findAny().get();
+  public Optional<SolrNode> findAnyAvailableNode() {
+    return collectionToNodeMapping.values().stream().findAny();
   }
 }
