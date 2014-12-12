@@ -1,6 +1,6 @@
 package org.sis.connector.solr.cluster.config
 
-import org.sis.connector.solr.cluster.config.SolrClusterStateReader
+import org.sis.connector.solr.cluster.SolrNode
 import spock.lang.Specification
 
 class SolrClusterStateReaderTest extends Specification {
@@ -16,5 +16,9 @@ class SolrClusterStateReaderTest extends Specification {
 
     then:
     state.keySet() == ['collection1'] as Set
+    state.get("collection1").containsAll([
+        new SolrNode("http://127.0.1.1:8001/solr", true),
+        new SolrNode("http://127.0.1.1:8002/solr", true)
+    ])
   }
 }

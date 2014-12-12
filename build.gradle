@@ -49,8 +49,9 @@ dependencies {
   compile 'org.apache.curator:curator-framework:2.7.0'
   compile 'org.apache.curator:curator-recipes:2.7.0'
 
-  // FP
+  // Commons
   compile 'com.google.guava:guava:18.0'
+  compile 'org.apache.commons:commons-lang3:3.3.2'
 
   // Tests
   testCompile 'org.spockframework:spock-core:0.7-groovy-2.0'
