@@ -14,4 +14,8 @@ public class CollectionConfig {
   public String getCollectionName() {
     return collectionName;
   }
+
+  public HandlersInfo getHandlersInfo() {
+    return handlersInfo;
+  }
 }
