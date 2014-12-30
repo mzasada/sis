@@ -9,6 +9,8 @@ import org.sis.connector.solr.cluster.config.InvalidConfigurationException;
 import org.sis.connector.solr.cluster.config.SolrClusterStateReader;
 import org.sis.connector.solr.cluster.config.SolrConfigXmlReader;
 import org.sis.ipc.events.ClusterStatusUpdateEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +26,8 @@ import static org.sis.connector.solr.cluster.util.ClusterTopologyUtils.findLeade
 
 @Component
 public class SolrClusterStateUpdater {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(SolrClusterStateUpdater.class);
 
   private final EventBus eventBus;
   private final SolrFileService solrFileService;
@@ -42,21 +46,21 @@ public class SolrClusterStateUpdater {
 
   public void updateSolrClusterStateAsync(String clusterStateJson) {
 //    executorService.submit(() -> {
-      Multimap<CollectionConfig, SolrNode> clusterTopology = HashMultimap.create();
-      Multimap<String, SolrNode> clusterState = solrClusterStateReader.readClusterState(clusterStateJson);
-      List<CompletableFuture<?>> pendingFutures = Lists.newArrayList();
+    Multimap<CollectionConfig, SolrNode> clusterTopology = HashMultimap.create();
+    Multimap<String, SolrNode> clusterState = solrClusterStateReader.readClusterState(clusterStateJson);
+    List<CompletableFuture<?>> pendingFutures = Lists.newArrayList();
 
-      clusterState.asMap().forEach(
-          (collection, nodes) ->
-              pendingFutures.add(
-                  loadCollectionConfig(collection, nodes)
-                      .thenApply(solrConfigXmlReader::read)
-                      .whenComplete((info, ex) ->
-                          clusterTopology.putAll(new CollectionConfig(collection, info), nodes))));
+    clusterState.asMap().forEach(
+        (collection, nodes) ->
+            pendingFutures.add(
+                loadCollectionConfig(collection, nodes)
+                    .thenApply(solrConfigXmlReader::read)
+                    .whenComplete((info, ex) ->
+                        clusterTopology.putAll(new CollectionConfig(collection, info), nodes))));
 
-      CompletableFuture.allOf(pendingFutures.toArray(new CompletableFuture[pendingFutures.size()])).join();
+    CompletableFuture.allOf(pendingFutures.toArray(new CompletableFuture[pendingFutures.size()])).join();
 
-      eventBus.post(new ClusterStatusUpdateEvent(clusterTopology));
+    eventBus.post(new ClusterStatusUpdateEvent(clusterTopology));
 //    });
   }
 
@@ -69,6 +73,10 @@ public class SolrClusterStateUpdater {
   private CompletableFuture<String> loadCollectionConfig(String collectionName, Collection<SolrNode> nodes) {
     return findLeaderNode(nodes)
         .map(node -> solrFileService.fetchSolrConfigXml(node, collectionName))
-        .orElseThrow(() -> new InvalidConfigurationException(""));
+        .orElseThrow(() -> {
+          LOGGER.warn("Could not fetch 'solrconfig.xml' file for collection '{}', available on nodes '{}'",
+              collectionName, nodes);
+          return new InvalidConfigurationException("Could not fetch solrconfig.xml file flor Solr cluster.");
+        });
   }
 }
