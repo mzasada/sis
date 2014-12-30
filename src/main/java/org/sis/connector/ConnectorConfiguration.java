@@ -32,6 +32,6 @@ public class ConnectorConfiguration {
 
   @Bean(initMethod = "start", destroyMethod = "close")
   public CuratorFramework curatorFramework() {
-    return CuratorFrameworkFactory.newClient("localhost:9001", new ExponentialBackoffRetry(1000, 3));
+    return CuratorFrameworkFactory.newClient("localhost:9983", new ExponentialBackoffRetry(1000, 3));
   }
 }
