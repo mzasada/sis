@@ -1,9 +1,9 @@
 package org.sis.connector.solr.api;
 
 import com.google.common.net.MediaType;
-import org.sis.connector.solr.cluster.ClusterState;
 import org.sis.connector.solr.cluster.SolrNode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.util.UriComponents;
@@ -19,12 +19,10 @@ import static org.sis.util.concurrent.Futures.completableFuture;
 public class SolrFileServiceImpl implements SolrFileService {
 
   private final AsyncRestOperations asyncRestOperations;
-  private final ClusterState clusterState;
 
   @Autowired
-  public SolrFileServiceImpl(AsyncRestOperations asyncRestOperations, ClusterState clusterState) {
+  public SolrFileServiceImpl(AsyncRestOperations asyncRestOperations) {
     this.asyncRestOperations = asyncRestOperations;
-    this.clusterState = clusterState;
   }
 
   @Override
@@ -37,7 +35,7 @@ public class SolrFileServiceImpl implements SolrFileService {
         .build();
 
     return completableFuture(asyncRestOperations.getForEntity(uriComponents.toUri(), String.class))
-        .thenApply(r -> r.getBody());
+        .thenApply(HttpEntity::getBody);
   }
 
   @Override

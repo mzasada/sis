@@ -5,7 +5,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import com.google.common.eventbus.EventBus;
 import org.sis.connector.solr.api.SolrFileService;
-import org.sis.connector.solr.cluster.config.InvalidConfigurationException;
 import org.sis.connector.solr.cluster.config.SolrClusterStateReader;
 import org.sis.connector.solr.cluster.config.SolrConfigXmlReader;
 import org.sis.ipc.events.ClusterStatusUpdateEvent;
@@ -14,13 +13,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PreDestroy;
-import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import static org.sis.connector.solr.cluster.util.ClusterTopologyUtils.findLeaderNode;
 
@@ -31,7 +27,6 @@ public class SolrClusterStateUpdater {
 
   private final EventBus eventBus;
   private final SolrFileService solrFileService;
-  private final ExecutorService executorService;
   private final SolrClusterStateReader solrClusterStateReader;
   private final SolrConfigXmlReader solrConfigXmlReader;
 
@@ -39,44 +34,38 @@ public class SolrClusterStateUpdater {
   public SolrClusterStateUpdater(EventBus eventBus, SolrFileService solrFileService) {
     this.eventBus = eventBus;
     this.solrFileService = solrFileService;
-    this.executorService = Executors.newFixedThreadPool(5);
     this.solrClusterStateReader = new SolrClusterStateReader();
     this.solrConfigXmlReader = new SolrConfigXmlReader();
   }
 
   public void updateSolrClusterStateAsync(String clusterStateJson) {
-//    executorService.submit(() -> {
     Multimap<CollectionConfig, SolrNode> clusterTopology = HashMultimap.create();
     Multimap<String, SolrNode> clusterState = solrClusterStateReader.readClusterState(clusterStateJson);
-    List<CompletableFuture<?>> pendingFutures = Lists.newArrayList();
+    LOGGER.debug("Cluster state changed. Current view - '{}'", clusterState);
 
-    clusterState.asMap().forEach(
-        (collection, nodes) ->
-            pendingFutures.add(
-                loadCollectionConfig(collection, nodes)
-                    .thenApply(solrConfigXmlReader::read)
-                    .whenComplete((info, ex) ->
-                        clusterTopology.putAll(new CollectionConfig(collection, info), nodes))));
+    List<CompletableFuture<?>> pendingFutures = Lists.newArrayList();
+    findOnlyCollectionLeaders(clusterState).forEach(
+        (collection, node) -> pendingFutures.add(
+            solrFileService.fetchSolrConfigXml(node, collection)
+                .thenApply(solrConfigXmlReader::read)
+                .thenAccept(info ->
+                    clusterTopology.putAll(
+                        new CollectionConfig(collection, info), clusterState.get(collection)))));
 
     CompletableFuture.allOf(pendingFutures.toArray(new CompletableFuture[pendingFutures.size()])).join();
 
     eventBus.post(new ClusterStatusUpdateEvent(clusterTopology));
-//    });
   }
 
-  @PreDestroy
-  public void shutdown() throws InterruptedException {
-    executorService.shutdown();
-    executorService.awaitTermination(500, TimeUnit.MILLISECONDS);
-  }
-
-  private CompletableFuture<String> loadCollectionConfig(String collectionName, Collection<SolrNode> nodes) {
-    return findLeaderNode(nodes)
-        .map(node -> solrFileService.fetchSolrConfigXml(node, collectionName))
-        .orElseThrow(() -> {
-          LOGGER.warn("Could not fetch 'solrconfig.xml' file for collection '{}', available on nodes '{}'",
-              collectionName, nodes);
-          return new InvalidConfigurationException("Could not fetch solrconfig.xml file flor Solr cluster.");
-        });
+  private Map<String, SolrNode> findOnlyCollectionLeaders(Multimap<String, SolrNode> clusterState) {
+    Map<String, SolrNode> collectionLeaders = new HashMap<>();
+    clusterState.asMap().forEach(
+        (collection, nodes) -> findLeaderNode(nodes)
+            // Skip leaderless collections, since they might be unavailable. Cluster will eventually converge
+            // and when it happens, curator will rerun the whole sync process all over.
+            .ifPresent(
+                node -> collectionLeaders.put(collection, node))
+    );
+    return collectionLeaders;
   }
 }
