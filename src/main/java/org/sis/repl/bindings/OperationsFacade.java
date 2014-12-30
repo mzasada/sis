@@ -24,7 +24,7 @@ public class OperationsFacade {
   }
 
   public SaveDocument save(Map<String, Object> document) {
-    return new SaveDocument(collectionName, new JSONObject(document));
+    return new SaveDocument(collectionName, document);
   }
 
   public JSONObject find(Map<String, Object> input) {
