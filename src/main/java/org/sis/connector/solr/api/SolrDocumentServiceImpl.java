@@ -12,6 +12,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.util.UriComponents;
@@ -42,9 +43,8 @@ public class SolrDocumentServiceImpl implements SolrDocumentService {
   public CompletableFuture<JSONObject> save(SaveDocument operation) {
     UriComponents uriComponents = UriComponentsBuilder
         .fromHttpUrl(getUpdateHandlerEndpoint(operation.getCollectionName()))
-        .queryParam("commit", true)
+        .queryParam("commit", true) //TODO: make it explicit options for user -> commit + openSearcher
         .queryParam("json.command", false)
-        .queryParam("wt", "json")
         .queryParam("wt", "json")
         .build();
     String payload = GSON.toJson(operation.getDocument());
@@ -57,8 +57,13 @@ public class SolrDocumentServiceImpl implements SolrDocumentService {
     httpHeaders.setAccept(of(APPLICATION_JSON));
     httpHeaders.setContentType(APPLICATION_JSON);
 
-    return completableFuture(asyncRestOperations.postForEntity(uri, new HttpEntity<>(payload, httpHeaders), Map.class))
-        .thenApply(r -> new JSONObject(r.getBody()));
+    return completableFuture(asyncRestOperations.postForEntity(uri, new HttpEntity<>(payload, httpHeaders), String.class))
+        .thenApply(this::getUpdateResponseAsJSON);
+  }
+
+  private JSONObject getUpdateResponseAsJSON(ResponseEntity<String> response) {
+    // TODO: more readable information than {"responseHeader":{"status":0.0,"QTime":13.0}}!
+    return new JSONObject(GSON.fromJson(response.getBody(), Map.class));
   }
 
   private String getUpdateHandlerEndpoint(String collectionName) {
