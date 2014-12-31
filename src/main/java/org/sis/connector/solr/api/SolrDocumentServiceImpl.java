@@ -12,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.util.UriComponents;
@@ -42,34 +41,38 @@ public class SolrDocumentServiceImpl implements SolrDocumentService {
   @Override
   public CompletableFuture<JSONObject> save(SaveDocument operation) {
     UriComponents uriComponents = UriComponentsBuilder
-        .fromHttpUrl(getSearchHandlerEndpoint(operation.getCollectionName()))
+        .fromHttpUrl(getUpdateHandlerEndpoint(operation.getCollectionName()))
+        .queryParam("commit", true)
+        .queryParam("json.command", false)
+        .queryParam("wt", "json")
         .queryParam("wt", "json")
         .build();
     String payload = GSON.toJson(operation.getDocument());
 
-    return sendAsyncRequest(payload, uriComponents.toUriString());
+    return sendAsyncRequest(uriComponents.toUriString(), payload);
   }
 
   private CompletableFuture<JSONObject> sendAsyncRequest(String uri, String payload) {
     HttpHeaders httpHeaders = new HttpHeaders();
     httpHeaders.setAccept(of(APPLICATION_JSON));
+    httpHeaders.setContentType(APPLICATION_JSON);
 
-    return completableFuture(asyncRestOperations.exchange(uri, HttpMethod.POST, new HttpEntity<>(payload, httpHeaders), Map.class))
+    return completableFuture(asyncRestOperations.postForEntity(uri, new HttpEntity<>(payload, httpHeaders), Map.class))
         .thenApply(r -> new JSONObject(r.getBody()));
   }
 
-  private String getSearchHandlerEndpoint(String collectionName) {
+  private String getUpdateHandlerEndpoint(String collectionName) {
     String searchHandler = clusterState.findCollectionConfigByName(collectionName)
         .map(CollectionConfig::getHandlersInfo)
-        .map(HandlersInfo::getSearchHandler)
+        .map(HandlersInfo::getUpdateHandler)
         .orElseThrow(() -> {
-          LOGGER.warn("Could not find any collection with name: '{}'", collectionName);
+          LOGGER.warn("Inconsistent collection view - could not find any collection with name: '{}'", collectionName);
           return new IllegalStateException();
         });
 
     return clusterState.findLeaderNodeForCollection(collectionName)
         .map(SolrNode::getHost)
-        .map(host -> String.format("%s/%s", host, searchHandler))
+        .map(host -> String.format("%s/%s/%s", host, collectionName, searchHandler))
         .orElseThrow(() -> {
           LOGGER.warn("Could not find leader node for collection '{}'", collectionName);
           return new IllegalStateException();
