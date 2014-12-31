@@ -10,6 +10,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.Optional;
 
+import static org.sis.connector.solr.cluster.util.ClusterTopologyUtils.findCollectionConfig;
+import static org.sis.connector.solr.cluster.util.ClusterTopologyUtils.findCollectionLeader;
+
 /**
  * In-memory representation of Solr cluster state. It contains information about all available collections,
  * cores and search handlers.
@@ -35,5 +38,15 @@ public class ClusterStateComponent implements ClusterState {
   @Override
   public Optional<SolrNode> findAnyAvailableNode() {
     return collectionToNodeMapping.values().stream().findAny();
+  }
+
+  @Override
+  public Optional<SolrNode> findLeaderNodeForCollection(String collectionName) {
+    return findCollectionLeader(collectionToNodeMapping, collectionName);
+  }
+
+  @Override
+  public Optional<CollectionConfig> findCollectionConfigByName(String collectionName) {
+    return findCollectionConfig(collectionToNodeMapping, collectionName);
   }
 }

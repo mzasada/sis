@@ -9,13 +9,18 @@ import java.util.Optional;
 
 public class ClusterTopologyUtils {
 
-  public static Optional<SolrNode> findCollectionLeader(Multimap<CollectionConfig, SolrNode> topology, String collectionName) {
-    Optional<CollectionConfig> optional = topology.keySet()
+  public static Optional<CollectionConfig> findCollectionConfig(Multimap<CollectionConfig, SolrNode> topology,
+                                                                      String collectionName) {
+    return topology.keySet()
         .stream()
         .filter(config -> collectionName.equals(config.getCollectionName()))
         .findFirst();
-    if (optional.isPresent()) {
-      return findLeaderNode(topology.get(optional.get()));
+  }
+
+  public static Optional<SolrNode> findCollectionLeader(Multimap<CollectionConfig, SolrNode> topology, String collectionName) {
+    Optional<CollectionConfig> collectionConfig = findCollectionConfig(topology, collectionName);
+    if (collectionConfig.isPresent()) {
+      return findLeaderNode(topology.get(collectionConfig.get()));
     }
     return Optional.empty();
   }

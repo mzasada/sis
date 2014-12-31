@@ -1,25 +1,25 @@
 package org.sis.repl.bindings;
 
 import org.json.simple.JSONObject;
-import org.sis.repl.bindings.operations.CreateCollection;
 import org.sis.repl.bindings.operations.DropCollection;
+import org.sis.repl.bindings.operations.SaveDocument;
 
 import java.util.Map;
 
-public class CollectionOperations {
+public class ExistingCollectionOperations implements OperationsFacade {
 
   private final String collectionName;
 
-  public CollectionOperations(String collectionName) {
+  public ExistingCollectionOperations(String collectionName) {
     this.collectionName = collectionName;
-  }
-
-  public CreateCollection create() {
-    return new CreateCollection(collectionName);
   }
 
   public DropCollection delete() {
     return new DropCollection(collectionName);
+  }
+
+  public SaveDocument save(Map<String, Object> document) {
+    return new SaveDocument(collectionName, document);
   }
 
   public JSONObject find(Map<String, Object> input) {

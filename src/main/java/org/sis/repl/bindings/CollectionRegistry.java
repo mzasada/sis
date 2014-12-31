@@ -1,23 +1,34 @@
 package org.sis.repl.bindings;
 
+import com.google.common.collect.ForwardingMap;
+import com.google.common.collect.ForwardingSortedMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import org.sis.ipc.events.ClusterStatusUpdateEvent;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.TreeMap;
 
 @Component
 public class CollectionRegistry {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CollectionRegistry.class);
+  private final SortedMap<String, OperationsFacade> existingCollections = new TreeMap<>();
+  private final ForwardingMap<String, OperationsFacade> collectionsView = new ForwardingSortedMap<String, OperationsFacade>() {
 
-  private final Map<String, CollectionOperations> collections = new TreeMap<>();
+    @Override
+    public OperationsFacade get(Object key) {
+      return existingCollections.getOrDefault(key, new NewCollectionOperations(String.valueOf(key)));
+    }
+
+    @Override
+    protected SortedMap<String, OperationsFacade> delegate() {
+      return existingCollections;
+    }
+  };
 
   @Autowired
   public CollectionRegistry(EventBus eventBus) {
@@ -29,13 +40,13 @@ public class CollectionRegistry {
     updateCollection(event.getCollectionNames());
   }
 
-  public Map<String, CollectionOperations> getCurrentCollectionsView() {
-    return collections;
+  public Map<String, OperationsFacade> getCurrentCollectionsView() {
+    return collectionsView;
   }
 
   private void updateCollection(Set<String> collectionNames) {
-    collections.clear();
+    existingCollections.clear();
     collectionNames.forEach(
-        name -> collections.put(name, new CollectionOperations(name)));
+        name -> existingCollections.put(name, new ExistingCollectionOperations(name)));
   }
 }
