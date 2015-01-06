@@ -2,6 +2,7 @@ package org.sis.connector.solr.api;
 
 import com.google.gson.Gson;
 import org.json.simple.JSONObject;
+import org.sis.connector.solr.api.messages.SearchHandlerResponseConverter;
 import org.sis.connector.solr.cluster.ClusterState;
 import org.sis.connector.solr.cluster.CollectionConfig;
 import org.sis.connector.solr.cluster.SolrNode;
@@ -18,7 +19,6 @@ import org.springframework.web.client.AsyncRestOperations;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 import static com.google.common.collect.ImmutableList.of;
@@ -30,6 +30,7 @@ public class SolrDocumentServiceImpl implements SolrDocumentService {
   private static final Logger LOGGER = LoggerFactory.getLogger(SolrDocumentServiceImpl.class);
   private static final Gson GSON = new Gson();
 
+  private final SearchHandlerResponseConverter searchHandlerResponseConverter = new SearchHandlerResponseConverter();
   private final AsyncRestOperations asyncRestOperations;
   private final ClusterState clusterState;
 
@@ -62,8 +63,7 @@ public class SolrDocumentServiceImpl implements SolrDocumentService {
   }
 
   private JSONObject getUpdateResponseAsJSON(ResponseEntity<String> response) {
-    // TODO: more readable information than {"responseHeader":{"status":0.0,"QTime":13.0}}!
-    return new JSONObject(GSON.fromJson(response.getBody(), Map.class));
+    return searchHandlerResponseConverter.convert(response.getBody());
   }
 
   private String getUpdateHandlerEndpoint(String collectionName) {
