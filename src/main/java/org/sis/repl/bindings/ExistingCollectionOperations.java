@@ -1,7 +1,7 @@
 package org.sis.repl.bindings;
 
-import org.json.simple.JSONObject;
 import org.sis.repl.bindings.operations.DropCollection;
+import org.sis.repl.bindings.operations.FindOneDocument;
 import org.sis.repl.bindings.operations.SaveDocument;
 
 import java.util.Map;
@@ -22,9 +22,7 @@ public class ExistingCollectionOperations implements OperationsFacade {
     return new SaveDocument(collectionName, document);
   }
 
-  public JSONObject find(Map<String, Object> input) {
-    JSONObject json = new JSONObject(input);
-    System.out.println("input = [" + json + "]");
-    return json;
+  public FindOneDocument findOne(Map<String, Object> criteria) {
+    return new FindOneDocument(collectionName, criteria);
   }
 }

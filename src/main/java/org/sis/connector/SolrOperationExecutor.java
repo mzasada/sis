@@ -5,6 +5,7 @@ import org.sis.connector.solr.api.SolrCollectionService;
 import org.sis.connector.solr.api.SolrDocumentService;
 import org.sis.repl.bindings.operations.CreateCollection;
 import org.sis.repl.bindings.operations.DropCollection;
+import org.sis.repl.bindings.operations.FindOneDocument;
 import org.sis.repl.bindings.operations.SaveDocument;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -41,5 +42,10 @@ public class SolrOperationExecutor implements OperationExecutor {
   @Override
   public CompletableFuture<JSONObject> submit(SaveDocument operation) {
     return within(solrDocumentService.save(operation), DEFAULT_OPERATION_TIMEOUT);
+  }
+
+  @Override
+  public CompletableFuture<JSONObject> submit(FindOneDocument operation) {
+    return within(solrDocumentService.findOne(operation), DEFAULT_OPERATION_TIMEOUT);
   }
 }

@@ -5,16 +5,20 @@ import org.sis.connector.OperationExecutor;
 
 import java.util.concurrent.CompletableFuture;
 
-public class CreateCollection implements Operation {
+/**
+ * Command for creating a single collection.
+ *
+ * @since 1.0
+ */
+public class CreateCollection extends NamedCollectionOperation {
 
   private static final long MIN_SHARD_COUNT = 1L;
 
-  private final String collectionName;
   private long replicas;
   private long shards = MIN_SHARD_COUNT;
 
   public CreateCollection(String collectionName) {
-    this.collectionName = collectionName;
+    super(collectionName);
   }
 
   public CreateCollection replicas(long count) {
@@ -25,10 +29,6 @@ public class CreateCollection implements Operation {
   public CreateCollection shards(long count) {
     shards = count;
     return this;
-  }
-
-  public String getCollectionName() {
-    return collectionName;
   }
 
   public long getReplicas() {
