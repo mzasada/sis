@@ -6,7 +6,7 @@ class SolrConfigXmlReaderTest extends Specification {
 
   SolrConfigXmlReader solrConfigXmlReader = new SolrConfigXmlReader()
 
-  def 'should read search handler with the simplest configuration as a default collection handler'() {
+  def 'should read search handler with the smallest amount of defaults'() {
     given:
     def config =
         """
@@ -20,6 +20,37 @@ class SolrConfigXmlReaderTest extends Specification {
               <str name="indent">true</str>
               <str name="df">text</str>
           </lst>
+        </requestHandler>
+        <requestHandler name="/simple" class="solr.SearchHandler">
+          <lst name="defaults">
+              <str name="wt">json</str>
+          </lst>
+        </requestHandler>
+        <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+      </config>
+        """
+
+    when:
+    def handlers = solrConfigXmlReader.read(config)
+
+    then:
+    handlers.searchHandler == "/simple"
+  }
+
+  def 'should read search handler with the smallest amount of search components'() {
+    given:
+    def config =
+        """
+      <?xml version="1.0" encoding="UTF-8" ?>
+      <config>
+        <requestHandler name="/get" class="solr.RealTimeGetHandler" />
+        <requestHandler name="/query" class="solr.SearchHandler">
+          <lst name="defaults">
+              <str name="wt">json</str>
+          </lst>
+          <arr name="last-components">
+            <str>spellcheck</str>
+          </arr>
         </requestHandler>
         <requestHandler name="/simple" class="solr.SearchHandler">
           <lst name="defaults">

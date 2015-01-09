@@ -1,10 +1,10 @@
 package org.sis.connector.solr.cluster.config;
 
+import com.google.common.collect.ComparisonChain;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import static java.lang.Integer.compare;
 import static org.jsoup.Jsoup.parse;
 import static org.jsoup.parser.Parser.xmlParser;
 
@@ -35,7 +35,7 @@ public class SolrConfigXmlReader {
   private String findLeastConfiguredSearchHandler(Document document) {
     return findEagerRequestHandlers(document, "solr.SearchHandler")
         .stream()
-        .sorted((e1, e2) -> compare(countConfigElements(e1), countConfigElements(e2)))
+        .sorted(this::leastConfiguredHandlerComparator)
         .map(e -> e.attr("name"))
         .findFirst()
         .orElseThrow(() -> new InvalidConfigurationException("Could not find any search handler."));
@@ -47,7 +47,19 @@ public class SolrConfigXmlReader {
         .not("requestHandler[startup=lazy]");
   }
 
-  private int countConfigElements(Element element) {
+  private int leastConfiguredHandlerComparator(Element e1, Element e2) {
+    return ComparisonChain.start()
+        .compare(getSizeOfDefaultList(e1), getSizeOfDefaultList(e2))
+        .compare(getSizeOfSearchComponents(e1), getSizeOfSearchComponents(e2))
+        .result();
+  }
+
+  private int getSizeOfDefaultList(Element element) {
     return element.select("lst[name=defaults] > *").size();
+  }
+
+  private int getSizeOfSearchComponents(Element element) {
+    return element.select("arr[name=last-components] > *").size() +
+        element.select("arr[name=components] > *").size();
   }
 }
